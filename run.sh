@@ -128,6 +128,21 @@ if [ ! -z "${MESSAGE_SIZE_LIMIT}" ]; then
   echo "Setting configuration option message_size_limit with value: ${MESSAGE_SIZE_LIMIT}"
 fi
 
+# Custom configuration options
+
+# via env vars for easy configuring
+for var in "${!POSTFIX_@}"; do
+  keyname="${var#POSTFIX_}"
+  keyname="${keyname,,}"
+  value=${!var}
+  postconf -e "$keyname = $value"
+done
+
+# for more advanced configuring, allow mounting and running a script
+if [ -x /post-setup.sh ]; then
+	/post-setup.sh
+fi
+
 #Start services
 
 # If host mounting /var/spool/postfix, we need to delete old pid file before
